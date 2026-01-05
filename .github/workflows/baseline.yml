@@ -1,0 +1,28 @@
+name: Generate Baselines
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - baseline/*
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.2'
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist
+      - name: Run baseline generator
+        run: bash ./bin/generate-baselines
+      - name: Commit baselines (if any)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add phpstan-baseline.neon psalm-baseline.xml || true
+          git diff --staged --quiet || (git commit -m "chore: update static analysis baselines" && git push)

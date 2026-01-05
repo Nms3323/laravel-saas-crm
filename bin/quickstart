@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+
+if [ ! -f "composer.json" ]; then
+  echo "Run this script from project root"
+  exit 1
+fi
+
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+
+echo "Demo setup complete. Run 'php artisan serve' or use 'make serve' to start the app."

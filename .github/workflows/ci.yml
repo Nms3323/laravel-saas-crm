@@ -1,0 +1,20 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  php-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.2'
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist
+      - name: Run tests
+        run: vendor/bin/phpunit --configuration phpunit.xml
+      - name: Static analysis - PHPStan
+        run: vendor/bin/phpstan analyse --no-progress || true
+      - name: Static analysis - Psalm
+        run: vendor/bin/psalm --no-progress || true
